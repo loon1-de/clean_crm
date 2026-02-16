@@ -46,7 +46,7 @@ class ActivityController extends Controller
             'note' => $request->note,
         ]);
 
-        return redirect()->route('deals.index');
+        return redirect()->route('deals.index')->with('success', 'Activity created successfully');
     }
 
 

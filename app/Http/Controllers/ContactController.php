@@ -44,7 +44,7 @@ class ContactController extends Controller
             'phone' => $request->phone,
         ]);
 
-        return redirect()->route('contacts.index');
+        return redirect()->route('contacts.index')->with('success', 'Contact created successfully');
     }
 
 
@@ -87,7 +87,7 @@ class ContactController extends Controller
             'phone' => $request->phone,
         ]);
 
-        return redirect()->route('contacts.index');
+        return redirect()->route('contacts.index')->with('success', 'Contact updated');;
     }
 
 
@@ -103,6 +103,6 @@ class ContactController extends Controller
 
         $contact->delete();
 
-        return redirect()->route('contacts.index');
+        return redirect()->route('contacts.index')->with('success', 'Contact deleted');;
     }
 }

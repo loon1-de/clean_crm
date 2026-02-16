@@ -1,8 +1,30 @@
+@if ($errors->any())
+<div class="bg-red-100 text-red-700 p-3 rounded mb-3">
+    @foreach ($errors->all() as $error)
+    <div>- {{ $error }}</div>
+    @endforeach
+</div>
+@endif
+
 <x-app-layout>
-    <div class="p-6 max-w-lg">
+    <div class="p-6 max-w-6xl mx-auto">
 
-        <h2 class="text-xl font-bold mb-4">Add Deal</h2>
+        <div class="flex justify-between items-center mb-4">
 
+            <h2 class="text-2xl font-bold">
+                Add Deal
+            </h2>
+
+            <div class="flex items-center gap-3">
+
+                <a href="{{ route('deals.index') }}"
+                    class="text-gray-500 text-sm hover:underline">
+                    ← Back
+                </a>
+
+            </div>
+
+        </div>
         <form method="POST" action="{{ route('deals.store') }}">
             @csrf
 
@@ -26,7 +48,9 @@
                 <option value="lost">Lost</option>
             </select>
 
-            <button class="bg-blue-500 text-white px-3 py-2">
+            <button type="submit"
+                onclick="this.disabled=true; this.innerText='Saving...'; this.form.submit();"
+                class="bg-blue-500 text-white px-4 py-2 rounded">
                 Save
             </button>
 

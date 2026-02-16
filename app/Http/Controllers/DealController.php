@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Models\Deal;
 use App\Models\Contact;
+use App\Models\Activity;
 use Illuminate\Http\Request;
 
 
@@ -59,15 +60,24 @@ class DealController extends Controller
             'stage' => $request->stage,
         ]);
 
-        return redirect()->route('deals.index');
+        return redirect()->route('deals.index')->with('success', 'Deal created successfully');;
     }
 
     /**
      * Display the specified resource.
      */
-    public function show(Deal $deal)
+    public function show($id)
     {
-        //
+        $deal = Deal::where('tenant_id', auth()->user()->tenant_id)
+            ->with('contact')
+            ->findOrFail($id);
+
+        $activities = Activity::where('tenant_id', auth()->user()->tenant_id)
+            ->where('deal_id', $deal->id)
+            ->latest()
+            ->get();
+
+        return view('deals.show', compact('deal', 'activities'));
     }
 
     /**

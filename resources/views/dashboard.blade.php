@@ -1,5 +1,5 @@
 <x-app-layout>
-    <div class="p-6">
+    <div class="p-6 max-w-6xl mx-auto">
 
         <h2 class="text-2xl font-bold mb-4">Dashboard</h2>
 

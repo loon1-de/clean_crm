@@ -1,5 +1,5 @@
 <x-app-layout>
-    <div class="p-6">
+    <div class="p-6 max-w-6xl mx-auto">
         <div class="flex justify-between items-center mb-4">
             <h2 class="text-2xl font-bold">Contacts</h2>
 
@@ -10,45 +10,76 @@
         </div>
 
         <div class="bg-white shadow rounded">
-            <table class="w-full table-auto">
-                <thead class="bg-gray-100">
-                    <tr>
-                        <th class="p-3 text-left">Name</th>
-                        <th class="p-3 text-left">Email</th>
-                        <th class="p-3 text-left">Phone</th>
-                        <th class="p-3 text-left">Action</th>
-                    </tr>
-                </thead>
+            <div class="bg-white rounded shadow overflow-hidden">
 
-                <tbody>
-                    @forelse($contacts as $contact)
-                    <tr class="border-t">
-                        <td class="p-3">{{ $contact->name }}</td>
-                        <td class="p-3">{{ $contact->email }}</td>
-                        <td class="p-3">{{ $contact->phone }}</td>
-                        <td class="p-3">
-                            <a href="{{ route('contacts.edit', $contact->id) }}" class="text-blue-500">Edit</a>
+                <table class="w-full text-sm">
 
-                            <form action="{{ route('contacts.destroy', $contact->id) }}" method="POST" style="display:inline;">
-                                @csrf
-                                @method('DELETE')
+                    <thead class="bg-gray-100 text-gray-600">
+                        <tr>
+                            <th class="p-3 text-left">Name</th>
+                            <th class="p-3 text-left">Email</th>
+                            <th class="p-3 text-left">Phone</th>
+                            <th class="p-3 text-left">Action</th>
+                        </tr>
+                    </thead>
 
-                                <button onclick="return confirm('Delete?')" class="text-red-500 ml-2">
-                                    Delete
-                                </button>
-                            </form>
-                        </td>
+                    <tbody>
+                        @forelse($contacts as $contact)
+                        <tr class="border-t hover:bg-gray-50">
 
-                    </tr>
-                    @empty
-                    <tr>
-                        <td colspan="4" class="p-3 text-center text-gray-500">
-                            No contacts yet
-                        </td>
-                    </tr>
-                    @endforelse
-                </tbody>
-            </table>
+                            <td class="p-3 font-medium">
+                                <a href="{{ route('contacts.show', $contact->id) }}"
+                                    class="text-blue-600 hover:underline">
+                                    {{ $contact->name }}
+                                </a>
+
+                            </td>
+
+                            <td class="p-3 text-gray-600">
+                                {{ $contact->email }}
+                            </td>
+
+                            <td class="p-3 text-gray-600">
+                                {{ $contact->phone }}
+                            </td>
+
+                            <td class="p-3">
+                                <div class="flex items-center gap-3">
+
+                                    <!-- Edit -->
+                                    <a href="{{ route('contacts.edit', $contact->id) }}"
+                                        class="text-blue-500 hover:underline">
+                                        Edit
+                                    </a>
+
+                                    <!-- Delete -->
+                                    <form action="{{ route('contacts.destroy', $contact->id) }}" method="POST">
+                                        @csrf
+                                        @method('DELETE')
+
+                                        <button onclick="return confirm('Are you sure to delete this contact?')" "
+                                            class=" text-red-500 hover:underline">
+                                            Delete
+                                        </button>
+                                    </form>
+
+                                </div>
+                            </td>
+
+                        </tr>
+                        @empty
+                        <tr>
+                            <td colspan="4" class="p-6 text-center text-gray-400">
+                                No contacts yet. Create your first contact.
+                            </td>
+                        </tr>
+                        @endforelse
+                    </tbody>
+
+                </table>
+
+            </div>
+
         </div>
     </div>
 </x-app-layout>

@@ -1,7 +1,15 @@
-<x-app-layout>
-    <div class="p-6 max-w-lg">
+@if ($errors->any())
+<div class="bg-red-100 text-red-700 p-3 rounded mb-3">
+    @foreach ($errors->all() as $error)
+    <div>- {{ $error }}</div>
+    @endforeach
+</div>
+@endif
 
-        <h2 class="text-xl font-bold mb-4">Add Contact</h2>
+<x-app-layout>
+    <div class="p-6 max-w-6xl mx-auto">
+
+        <h2 class="text-xl font-bold mb-4">Add Contact </h2>
 
         <!-- 🔥 Error -->
         @if ($errors->any())
@@ -21,7 +29,11 @@
 
             <input type="text" name="phone" value="{{ old('phone') }}" placeholder="Phone" class="border p-2 w-full mb-2">
 
-            <button class="bg-blue-500 text-white px-3 py-2">Save</button>
+            <button type="submit"
+                onclick="this.disabled=true; this.innerText='Saving...'; this.form.submit();"
+                class="bg-blue-500 text-white px-4 py-2 rounded">
+                Save
+            </button>
             <a href="{{ route('contacts.index') }}"
                 class="bg-gray-300 px-4 py-2 rounded hover:bg-gray-400">
                 Cancel

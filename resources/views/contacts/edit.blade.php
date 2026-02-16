@@ -1,5 +1,13 @@
+@if ($errors->any())
+<div class="bg-red-100 text-red-700 p-3 rounded mb-3">
+    @foreach ($errors->all() as $error)
+    <div>- {{ $error }}</div>
+    @endforeach
+</div>
+@endif
+
 <x-app-layout>
-    <div class="p-6 max-w-xl">
+    <div class="p-6 max-w-6xl mx-auto">
 
         <h2 class="text-2xl font-bold mb-4">Edit Contact</h2>
 
@@ -40,7 +48,8 @@
             <!-- Buttons -->
             <div class="flex gap-2">
                 <button type="submit"
-                    class="bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-600">
+                    onclick="this.disabled=true; this.innerText='Saving...'; this.form.submit();"
+                    class="bg-blue-500 text-white px-4 py-2 rounded">
                     Update
                 </button>
 
