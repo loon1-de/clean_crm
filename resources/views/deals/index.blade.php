@@ -2,34 +2,64 @@
     <div class="p-6 max-w-6xl mx-auto">
 
         <!-- Header -->
-        <div class="flex justify-between items-center mb-6">
+        <div class="flex justify-between items-center mb-4">
             <h2 class="text-2xl font-bold">Deals</h2>
 
             <a href="{{ route('deals.create') }}"
-                class="bg-blue-500 hover:bg-blue-600 text-white px-4 py-2 rounded">
+                class="bg-blue-500 text-white px-4 py-2 rounded">
                 + Add Deal
             </a>
         </div>
 
+        <!-- Search -->
+        <form method="GET" action="{{ route('deals.index') }}" class="mb-4 flex gap-2">
+
+            <input type="text" name="search"
+                value="{{ request('search') }}"
+                placeholder="Search deals..."
+                class="border rounded px-3 py-2 w-64">
+
+            <input type="hidden" name="per_page" value="{{ request('per_page', 10) }}">
+
+            <button class="bg-blue-500 text-white px-4 py-2 rounded">
+                Search
+            </button>
+
+            <a href="{{ route('deals.index') }}"
+                class="px-4 py-2 bg-gray-200 rounded">
+                Reset
+            </a>
+
+        </form>
+
         <!-- Pipeline -->
         <div class="grid grid-cols-4 gap-5">
 
-            <!-- NEW -->
+            @foreach([
+            'new' => $newDeals,
+            'progress' => $progressDeals,
+            'won' => $wonDeals,
+            'lost' => $lostDeals
+            ] as $stage => $stageDeals)
+
             <div class="bg-white border rounded shadow-sm">
 
                 <!-- Header -->
-                <div class="border-b px-3 py-2 flex justify-between items-center bg-gray-50">
-                    <h3 class="font-semibold text-sm">New</h3>
-                    <span class="text-xs text-gray-500">
-                        {{ $newDeals->count() }}
+                <div class="border-b px-3 py-2 bg-gray-50 flex justify-between">
+                    <h3 class="font-semibold capitalize">
+                        {{ $stage }}
+                    </h3>
+                    <span class="text-sm text-gray-500">
+                        {{ $stageDeals->count() }}
                     </span>
                 </div>
 
                 <!-- Body -->
                 <div class="p-3 space-y-3 min-h-[200px]">
 
-                    @forelse($newDeals as $deal)
-                    <div class="border rounded p-3 hover:shadow-md transition">
+                    @forelse($stageDeals as $deal)
+
+                    <div class="border rounded p-3 hover:shadow">
 
                         <div class="font-medium">
                             <a href="{{ route('deals.show', $deal->id) }}"
@@ -39,7 +69,7 @@
                         </div>
 
                         <div class="text-xs text-gray-500">
-                            {{ $deal->contact->name }}
+                            {{ $deal->contact->name ?? '-' }}
                         </div>
 
                         <div class="mt-1 text-sm font-semibold">
@@ -63,7 +93,7 @@
                     </div>
 
                     @empty
-                    <div class="text-center text-gray-400 text-sm py-6">
+                    <div class="text-sm text-gray-400 text-center py-6">
                         No deals
                     </div>
                     @endforelse
@@ -72,176 +102,68 @@
 
             </div>
 
-            <!-- PROGRESS -->
-            <div class="bg-white border rounded shadow-sm">
+            @endforeach
 
-                <div class="border-b px-3 py-2 flex justify-between items-center bg-yellow-50">
-                    <h3 class="font-semibold text-sm">In Progress</h3>
-                    <span class="text-xs text-gray-500">
-                        {{ $progressDeals->count() }}
-                    </span>
-                </div>
+        </div>
 
-                <div class="p-3 space-y-3 min-h-[200px]">
+        <!-- Pagination -->
+        <div class="mt-6 p-4 flex justify-between items-center text-sm">
 
-                    @forelse($progressDeals as $deal)
-                    <div class="border rounded p-3 hover:shadow-md transition">
-
-                        <div class="font-medium">
-                            <a href="{{ route('deals.show', $deal->id) }}"
-                                class="text-blue-600 hover:underline">
-                                {{ $deal->title }}
-                            </a>
-                        </div>
-
-                        <div class="text-xs text-gray-500">
-                            {{ $deal->contact->name }}
-                        </div>
-
-                        <div class="mt-1 text-sm font-semibold">
-                            RM {{ number_format($deal->amount, 2) }}
-                        </div>
-
-                        <div class="mt-2 flex justify-between text-xs">
-
-                            <a href="{{ route('activities.create', $deal->id) }}"
-                                class="text-green-600 hover:underline">
-                                + Activity
-                            </a>
-
-                            <a href="{{ route('deals.edit', $deal->id) }}"
-                                class="text-blue-500 hover:underline">
-                                Edit
-                            </a>
-
-                        </div>
-
-                    </div>
-
-                    @empty
-                    <div class="text-center text-gray-400 text-sm py-6">
-                        No deals
-                    </div>
-                    @endforelse
-
-                </div>
-
+            <!-- Showing -->
+            <div class="text-gray-500">
+                Showing
+                {{ $deals->firstItem() ?? 0 }}
+                -
+                {{ $deals->lastItem() ?? 0 }}
+                of
+                {{ $deals->total() }}
             </div>
 
-            <!-- WON -->
-            <div class="bg-white border rounded shadow-sm">
+            <!-- Controls -->
+            <div class="flex items-center gap-4">
 
-                <div class="border-b px-3 py-2 flex justify-between items-center bg-green-50">
-                    <h3 class="font-semibold text-sm">Won</h3>
-                    <span class="text-xs text-gray-500">
-                        {{ $wonDeals->count() }}
-                    </span>
-                </div>
+                <!-- Per Page -->
+                <form method="GET" action="{{ route('deals.index') }}">
 
-                <div class="p-3 space-y-3 min-h-[200px]">
+                    <input type="hidden" name="search" value="{{ request('search') }}">
 
-                    @forelse($wonDeals as $deal)
-                    <div class="border rounded p-3 hover:shadow-md transition">
+                    <select name="per_page"
+                        onchange="this.form.submit()"
+                        class="border rounded px-2 py-1 text-sm">
 
-                        <div class="font-medium text-green-600">
-                            <a href="{{ route('deals.show', $deal->id) }}"
-                                class="hover:underline">
-                                {{ $deal->title }}
-                            </a>
-                        </div>
+                        @foreach([10,20,50,100] as $size)
+                        <option value="{{ $size }}"
+                            {{ request('per_page', 10) == $size ? 'selected' : '' }}>
+                            {{ $size }} / page
+                        </option>
+                        @endforeach
 
-                        <div class="text-xs text-gray-500">
-                            {{ $deal->contact->name }}
-                        </div>
+                    </select>
 
-                        <div class="mt-1 text-sm font-semibold text-green-600">
-                            RM {{ number_format($deal->amount, 2) }}
-                        </div>
+                </form>
 
-                        <div class="mt-2 flex justify-between text-xs">
+                <!-- Prev -->
+                <a href="{{ $deals->previousPageUrl() ?? '#' }}"
+                    class="px-3 py-1 border rounded
+                    {{ $deals->onFirstPage() ? 'text-gray-400 pointer-events-none' : '' }}">
+                    Prev
+                </a>
 
-                            <a href="{{ route('activities.create', $deal->id) }}"
-                                class="text-green-600 hover:underline">
-                                + Activity
-                            </a>
+                <!-- Page -->
+                <span class="px-3 py-1 border rounded bg-gray-100">
+                    {{ $deals->currentPage() }}
+                </span>
 
-                            <a href="{{ route('deals.edit', $deal->id) }}"
-                                class="text-blue-500 hover:underline">
-                                Edit
-                            </a>
-
-                        </div>
-
-                    </div>
-
-                    @empty
-                    <div class="text-center text-gray-400 text-sm py-6">
-                        No deals
-                    </div>
-                    @endforelse
-
-                </div>
-
-            </div>
-
-            <!-- LOST -->
-            <div class="bg-white border rounded shadow-sm">
-
-                <div class="border-b px-3 py-2 flex justify-between items-center bg-red-50">
-                    <h3 class="font-semibold text-sm">Lost</h3>
-                    <span class="text-xs text-gray-500">
-                        {{ $lostDeals->count() }}
-                    </span>
-                </div>
-
-                <div class="p-3 space-y-3 min-h-[200px]">
-
-                    @forelse($lostDeals as $deal)
-                    <div class="border rounded p-3 hover:shadow-md transition">
-
-                        <div class="font-medium text-red-500">
-                            <a href="{{ route('deals.show', $deal->id) }}"
-                                class="hover:underline">
-                                {{ $deal->title }}
-                            </a>
-                        </div>
-
-                        <div class="text-xs text-gray-500">
-                            {{ $deal->contact->name }}
-                        </div>
-
-                        <div class="mt-1 text-sm font-semibold text-red-500">
-                            RM {{ number_format($deal->amount, 2) }}
-                        </div>
-
-                        <div class="mt-2 flex justify-between text-xs">
-
-                            <a href="{{ route('activities.create', $deal->id) }}"
-                                class="text-green-600 hover:underline">
-                                + Activity
-                            </a>
-
-                            <a href="{{ route('deals.edit', $deal->id) }}"
-                                class="text-blue-500 hover:underline">
-                                Edit
-                            </a>
-
-                        </div>
-
-                    </div>
-
-                    @empty
-                    <div class="text-center text-gray-400 text-sm py-6">
-                        No deals
-                    </div>
-                    @endforelse
-
-                </div>
+                <!-- Next -->
+                <a href="{{ $deals->nextPageUrl() ?? '#' }}"
+                    class="px-3 py-1 border rounded
+                    {{ !$deals->hasMorePages() ? 'text-gray-400 pointer-events-none' : '' }}">
+                    Next
+                </a>
 
             </div>
 
         </div>
-
 
     </div>
 </x-app-layout>

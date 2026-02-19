@@ -11,12 +11,33 @@ class ContactController extends Controller
     /**
      * Display a listing of the resource.
      */
-    public function index()
-    {
-        $contacts = \App\Models\Contact::where('tenant_id', auth()->user()->tenant_id)->get();
 
-        return view('contacts.index', compact('contacts'));
+    public function index(Request $request)
+    {
+        $tenantId = auth()->user()->tenant_id;
+
+        // per page (default 10)
+        $perPage = $request->get('per_page', 10);
+
+        $query = Contact::where('tenant_id', $tenantId);
+
+        // search
+        if ($request->search) {
+            $query->where(function ($q) use ($request) {
+                $q->where('name', 'like', '%' . $request->search . '%')
+                    ->orWhere('email', 'like', '%' . $request->search . '%')
+                    ->orWhere('phone', 'like', '%' . $request->search . '%');
+            });
+        }
+
+        $contacts = $query->latest()
+            ->paginate($perPage)
+            ->withQueryString();
+
+        return view('contacts.index', compact('contacts', 'perPage'));
     }
+
+
 
 
     /**
@@ -53,8 +74,17 @@ class ContactController extends Controller
      */
     public function show(Contact $contact)
     {
-        //
+        // 🔒 tenant security
+        if ($contact->tenant_id !== auth()->user()->tenant_id) {
+            abort(403);
+        }
+
+        // load related deals
+        $contact->load('deals');
+
+        return view('contacts.show', compact('contact'));
     }
+
 
     /**
      * Show the form for editing the specified resource.

@@ -13,22 +13,45 @@ class DealController extends Controller
     /**
      * Display a listing of the resource.
      */
-    public function index()
+    public function index(Request $request)
     {
-        $deals = Deal::where('tenant_id', auth()->user()->tenant_id)->get();
+        $tenantId = auth()->user()->tenant_id;
 
-        $newDeals = $deals->where('stage', 'new');
-        $progressDeals = $deals->where('stage', 'progress');
-        $wonDeals = $deals->where('stage', 'won');
-        $lostDeals = $deals->where('stage', 'lost');
+        $perPage = $request->get('per_page', 10);
+
+        $query = Deal::with('contact')
+            ->where('tenant_id', $tenantId);
+
+        // 🔍 search
+        if ($request->search) {
+            $query->where(function ($q) use ($request) {
+                $q->where('title', 'like', '%' . $request->search . '%')
+                    ->orWhereHas('contact', function ($q2) use ($request) {
+                        $q2->where('name', 'like', '%' . $request->search . '%');
+                    });
+            });
+        }
+
+        // ✅ pagination
+        $deals = $query->latest()
+            ->paginate($perPage)
+            ->withQueryString();
+
+        // ✅ split by stage (collection)
+        $newDeals = $deals->getCollection()->where('stage', 'new');
+        $progressDeals = $deals->getCollection()->where('stage', 'progress');
+        $wonDeals = $deals->getCollection()->where('stage', 'won');
+        $lostDeals = $deals->getCollection()->where('stage', 'lost');
 
         return view('deals.index', compact(
+            'deals',
             'newDeals',
             'progressDeals',
             'wonDeals',
             'lostDeals'
         ));
     }
+
     /**
      * Show the form for creating a new resource.
      */
